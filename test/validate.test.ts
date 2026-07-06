@@ -1,6 +1,18 @@
-import { describe, test, expect } from 'vitest'
+import { describe, test, expect, vi, beforeEach } from 'vitest'
+
+vi.mock('../src/utils', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('../src/utils')>()
+    return {
+        ...actual,
+        logWarning: vi.fn(),
+    }
+})
+
 import { fitEmbed, truncStr } from '../src/validate'
+import { logWarning } from '../src/utils'
 import * as constants from '../src/constants'
+
+const mockedLogWarning = vi.mocked(logWarning)
 
 describe('truncStr(string)', () => {
     test('truncStr', () => {
@@ -13,6 +25,10 @@ describe('truncStr(string)', () => {
 })
 
 describe('fitEmbed(embed)', () => {
+    beforeEach(() => {
+        mockedLogWarning.mockClear()
+    })
+
     test('too long title', () => {
         const input = {
             color: 0x28A745,
@@ -80,6 +96,8 @@ describe('fitEmbed(embed)', () => {
         }
         const got = fitEmbed(input)
         expect(got).toStrictEqual(want)
+        expect(mockedLogWarning).toHaveBeenCalledOnce()
+        expect(mockedLogWarning.mock.calls[0][0]).toMatch(/embed title must be shorter than/)
     })
 
     test('too long description', () => {
@@ -152,6 +170,8 @@ describe('fitEmbed(embed)', () => {
 
         const got = fitEmbed(input)
         expect(got).toStrictEqual(want)
+        expect(mockedLogWarning).toHaveBeenCalledOnce()
+        expect(mockedLogWarning.mock.calls[0][0]).toMatch(/embed description must be shorter than/)
     })
 
     test('too long field name', () => {
@@ -222,6 +242,8 @@ describe('fitEmbed(embed)', () => {
 
         const got = fitEmbed(input)
         expect(got).toStrictEqual(want)
+        expect(mockedLogWarning).toHaveBeenCalledOnce()
+        expect(mockedLogWarning.mock.calls[0][0]).toMatch(/embed field name must be shorter than/)
     })
 
     test('too long field value', () => {
@@ -292,5 +314,7 @@ describe('fitEmbed(embed)', () => {
 
         const got = fitEmbed(input)
         expect(got).toStrictEqual(want)
+        expect(mockedLogWarning).toHaveBeenCalledOnce()
+        expect(mockedLogWarning.mock.calls[0][0]).toMatch(/embed field value must be shorter than/)
     })
 })
