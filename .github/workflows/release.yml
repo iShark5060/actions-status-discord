@@ -52,7 +52,7 @@ jobs:
           subject-path: lib/index.mjs
 
       - name: Create version tag
-        uses: JasonEtco/build-and-tag-action@dd5e4991048c325f6d85b4155e586fc211c644da # v2
+        uses: iShark5060/build-and-tag-action@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
