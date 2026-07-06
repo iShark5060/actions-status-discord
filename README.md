@@ -1,19 +1,23 @@
 # Actions Status Discord
 
-Post GitHub Actions status to Discord as an beautiful embed
+Post GitHub Actions status to Discord as a beautiful embed.
+
+> **Fork notice:** This repository is a maintained fork of [sarisia/actions-status-discord](https://github.com/sarisia/actions-status-discord) by [**Sarisia**](https://github.com/sarisia). The original project is no longer maintained. All credit for the original action goes to Sarisia (Copyright © 2020).
 
 ![image](https://user-images.githubusercontent.com/33576079/212482263-31456af9-6a9f-4110-82ad-cd3df738bddb.png)
 
 - :sushi: **_Super Easy!_** Works perfectly out of the box, also super customizable!
-- :sushi: **_OS & Arch-agnostic!_** Tested against all GitHub-hosted runners including Ubuntu ARM and macOS Apple Silicon. [Check out test workflow](https://github.com/sarisia/actions-status-discord/actions/workflows/release.yml)
-- :sushi: **_Fast!_** JavaScript action! Faster than ones written as Docker container action
+- :sushi: **_OS & Arch-agnostic!_** Tested against all GitHub-hosted runners including Ubuntu ARM and macOS Apple Silicon.
+- :sushi: **_Fast!_** JavaScript action — no Docker container required.
 
 ## Usage
+
+> **Always reference a published version tag** (e.g. `@v1`), which is the default in the examples below. The bundled action code (`lib/index.js`) is only committed to release tags, so referencing an unreleased ref like `@main` will not work.
 
 ### Minimum
 
 ```yaml
-- uses: sarisia/actions-status-discord@v1
+- uses: iShark5060/actions-status-discord@v1
   if: always()
   with:
     webhook: ${{ secrets.DISCORD_WEBHOOK }}
@@ -24,7 +28,7 @@ Post GitHub Actions status to Discord as an beautiful embed
 ### Full options
 
 ```yaml
-- uses: sarisia/actions-status-discord@v1
+- uses: iShark5060/actions-status-discord@v1
   if: always()
   with:
     webhook: ${{ secrets.DISCORD_WEBHOOK }}
@@ -34,7 +38,7 @@ Post GitHub Actions status to Discord as an beautiful embed
     description: "Build and deploy to GitHub Pages"
     image: ${{ secrets.EMBED_IMAGE }}
     color: 0x0000ff
-    url: "https://github.com/sarisia/actions-status-discord"
+    url: "https://github.com/iShark5060/actions-status-discord"
     username: GitHub Actions
     avatar_url: ${{ secrets.AVATAR_URL }}
 ```
@@ -44,7 +48,7 @@ Post GitHub Actions status to Discord as an beautiful embed
 ### No detail
 
 ```yaml
-- uses: sarisia/actions-status-discord@v1
+- uses: iShark5060/actions-status-discord@v1
   if: always()
   with:
     webhook: ${{ secrets.DISCORD_WEBHOOK }}
@@ -76,7 +80,7 @@ For `if` parameter, see
 | Key | Required | Value | Default | Description |
 | - | - | - | - | - |
 | webhook | No | String | `env.DISCORD_WEBHOOK` | Discord webhook endpoind like:<br>`https://discordapp.com/api/webhooks/...`<br>This overrides `env.DISCORD_WEBHOOK`.<br>**DO NOT APPEND [`/github` SUFFIX](https://discord.com/developers/docs/resources/webhook#execute-githubcompatible-webhook)!** |
-| status | No | `Success`, `Failure` or `Cancelled` | `${{ job.status }}` | See [Document for `job` context](https://help.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#job-context) |
+| status | No | `Success`, `Failure`, `Cancelled`, or `Skipped` | `${{ job.status }}` | Job or workflow conclusion. See [Document for `job` context](https://help.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#job-context) |
 | content | No | String | | Content. Shown as an message outside of the embed. See [Mention to user/role](#mention-to-user/role) |
 | title | No | String | `${{ github.workflow}}` | String included in embed title. |
 | description | No | String | | Description included in message |
@@ -107,14 +111,6 @@ For `if` parameter, see
 
 </details>
 
-<!-- ## Migrate to v2
-
-### input `job` is now `title`
-
-`job` input is deprecated and now removed in v2.
-
-Just change `job` to `title` in your workflow file to make it work. -->
-
 
 ### Outputs
 
@@ -130,7 +126,7 @@ Just change `job` to `title` in your workflow file to make it work. -->
 Some fields support markdown syntax.
 
 ```yaml
-- uses: sarisia/actions-status-discord@v1
+- uses: iShark5060/actions-status-discord@v1
   with:
     webhook: ${{ secrets.DISCORD_WEBHOOK }}
     nodetail: true
@@ -149,7 +145,7 @@ Since `@mention` inside the embed does not generate ping to users,
 you can use `content` input to mention users/roles:
 
 ```yaml
-- uses: sarisia/actions-status-discord@v1
+- uses: iShark5060/actions-status-discord@v1
   if: always()
   with:
     webhook: ${{ secrets.DISCORD_WEBHOOK }}
@@ -180,23 +176,20 @@ workflow status to `Failure`.
 You can modify payload before sending to Discord:
 
 ```yaml
-- uses: sarisia/actions-status-discord@v1
+- uses: iShark5060/actions-status-discord@v1
   if: always()
   id: webhook # set id to reference output payload later
   with:
     nofail: false
     ack_no_webhook: true # set this to suppress error which is raised when nofail is disabled and webhook is not set
     # webhook is not set here!
-  
-- run: npm install axios
+
 - uses: actions/github-script@v7
   env:
     WEBHOOK_PAYLOAD: ${{ steps.webhook.outputs.payload }}
     WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK }}
   with:
     script: |
-      const axios = require("axios")
-
       const { WEBHOOK_PAYLOAD, WEBHOOK_URL } = process.env
 
       const payload = JSON.parse(WEBHOOK_PAYLOAD)
@@ -204,8 +197,15 @@ You can modify payload before sending to Discord:
       // modify payload as you like
       delete payload.embeds[0].color
 
-      // send to Discord
-      axios.post(WEBHOOK_URL, payload)
+      // send to Discord (fetch is available on the action runtime, no install needed)
+      const response = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      if (!response.ok) {
+        throw new Error(`Discord webhook failed: ${response.status} ${response.statusText}`)
+      }
 ```
 
 [See actions/github-script docs](https://github.com/actions/github-script)
@@ -221,24 +221,6 @@ If you have any issues, please let us know in Discussions or Issues.
 As [Guilded](https://guilded.gg) supports [Discord Webhooks API](https://discord.com/developers/docs/resources/webhook#execute-webhook),
 you can use Guilded webhook endpoint in the same way as Discord webhook.
 
-### Verifying Artifact Attestations
-
-This action is shipped with [Artifact attestations](https://docs.github.com/en/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds#about-verifying-artifact-attestations)
-for `action.yml` and `lib/index.js`.
-
-You can verify these files with [GitHub CLI](https://cli.github.com/):
-
-```
-$ gh attestation verify --repo sarisia/actions-status-discord lib/index.js
-Loaded digest sha256:4cc20dac6053670b29ff3ae8b9ddeafeed73fe79e5ab31fd8e34b6acd44d30c3 for file://lib/index.js
-Loaded 1 attestation from GitHub API
-✓ Verification succeeded!
-
-sha256:4cc20dac6053670b29ff3ae8b9ddeafeed73fe79e5ab31fd8e34b6acd44d30c3 was attested by:
-REPO                            PREDICATE_TYPE                  WORKFLOW                                              
-sarisia/actions-status-discord  https://slsa.dev/provenance/v1  .github/workflows/release.yml@refs/tags/v.1.14.3-pre.0
-```
-
 ## FAQ
 
 ### `Error: Webhook response: 400: {"sender":["This field is required"]}`
@@ -247,5 +229,9 @@ Do not append `/github` suffix to your webhook URL. See [Inputs](#inputs) sectio
 
 ## Questions? Bugs?
 
-Feel free to ask in [Discussions](https://github.com/sarisia/actions-status-discord/discussions),
-or report bugs in [Issues](https://github.com/sarisia/actions-status-discord/issues)!
+Feel free to ask in [Discussions](https://github.com/iShark5060/actions-status-discord/discussions),
+or report bugs in [Issues](https://github.com/iShark5060/actions-status-discord/issues)!
+
+## Credits
+
+This action was originally created by [**Sarisia**](https://github.com/sarisia) as [sarisia/actions-status-discord](https://github.com/sarisia/actions-status-discord). This fork is maintained by [iShark5060](https://github.com/iShark5060) for personal and community use.

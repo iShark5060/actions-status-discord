@@ -1,16 +1,16 @@
+import { describe, test, expect, vi } from 'vitest'
 import { formatEvent } from '../src/format'
 import { Inputs } from '../src/input'
 import { getPayload } from '../src/main'
 
-// see https://github.com/actions/toolkit/blob/457303960f03375db6f033e214b9f90d79c3fe5c/packages/github/src/context.ts
-// and https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
-jest.mock('@actions/github', () => {
+// see https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+vi.mock('../src/context', async () => {
+    const payload = (await import('./payload/push_tag.json')).default
     return {
-        context: {
-            payload: require('./payload/push_tag.json'),
+        getContext: () => ({
+            payload,
 
             eventName: 'push',
-            sha: '6113728f27ae82c7b1a177c8d03f9e96e0adf246',
             ref: 'refs/tags/simple-tag',
             workflow: 'push-ci',
             actor: 'Codertocat',
@@ -20,14 +20,13 @@ jest.mock('@actions/github', () => {
             repo: {
                 owner: 'Codertocat',
                 repo: 'Hello-World'
-            },
-
-        }
+            }
+        })
     }
 })
 
-jest.mock('../src/format')
-const mockedFormatEvent = formatEvent as jest.Mock
+vi.mock('../src/format')
+const mockedFormatEvent = vi.mocked(formatEvent)
 mockedFormatEvent.mockReturnValue("mocked format event")
 
 describe('getPayload(Inputs)', () => {
@@ -409,6 +408,7 @@ describe('getPayload(Inputs)', () => {
                 ]
             }]
         }
+        expect(getPayload(inputs)).toStrictEqual(want)
     })
 
     test("color", () => {

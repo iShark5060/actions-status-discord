@@ -9,5 +9,6 @@
 ## Update dependencies
 
 ```
-$ npm run deps
+$ pnpm run deps
+$ pnpm install
 ```

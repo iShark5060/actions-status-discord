@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { fitEmbed, truncStr } from '../src/validate'
 import * as constants from '../src/constants'
 

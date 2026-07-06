@@ -3,7 +3,7 @@ name: Bug report
 about: Create a report to help us improve
 title: ''
 labels: bug
-assignees: sarisia
+assignees: iShark5060
 
 ---
 
@@ -16,7 +16,7 @@ assignees: sarisia
 <!-- Paste workflow steps, if available: -->
 
 ```yaml
-- uses: sarisia/actions-status-discord@v1
+- uses: iShark5060/actions-status-discord@v1
   with:
     webhook: ...
 ```

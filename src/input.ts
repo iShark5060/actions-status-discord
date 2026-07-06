@@ -32,6 +32,10 @@ export const statusOpts: Record<string, StatusOption> = {
         status: 'Failure',
         color: 0xCB2431
     },
+    skipped: {
+        status: 'Skipped',
+        color: 0x95999C
+    },
     cancelled: {
         status: 'Cancelled',
         color: 0xDBAB09

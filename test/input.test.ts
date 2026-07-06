@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach } from 'vitest'
 import { getInputs } from '../src/input'
 
 describe("getInputs()", () => {
@@ -108,7 +109,7 @@ describe("getInputs()", () => {
     ])('color parses int-like (%s)', (color) => {
         process.env['INPUT_WEBHOOK'] = '\nhttps://input.webhook.invalid\n\n\nhttps://input2.webhook.invalid\n\n\n'
         process.env['INPUT_COLOR'] = color
-    
+
         const got = getInputs()
         expect(got.color).toBe(0xabcdef)
     })
@@ -121,7 +122,7 @@ describe("getInputs()", () => {
     ])("color is undefined if not int-like (%s)", (color) => {
         process.env['INPUT_WEBHOOK'] = '\nhttps://input.webhook.invalid\n\n\nhttps://input2.webhook.invalid\n\n\n'
         process.env['INPUT_COLOR'] = color
-    
+
         const got = getInputs()
         expect(got.color).toBe(undefined)
     })
@@ -178,6 +179,13 @@ describe("getInputs()", () => {
         const got = getInputs()
 
         expect(got.webhooks).toStrictEqual([])
+    })
+
+    test("skipped status is accepted", () => {
+        process.env['INPUT_WEBHOOK'] = 'https://input.webhook.invalid'
+        process.env['INPUT_STATUS'] = 'skipped'
+        const got = getInputs()
+        expect(got.status).toBe('skipped')
     })
 
     test("invalid status raises", () => {

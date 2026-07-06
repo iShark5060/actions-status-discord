@@ -1,6 +1,5 @@
 import { endGroup, startGroup, setOutput } from '@actions/core'
-import * as github from '@actions/github'
-import axios from 'axios'
+import { getContext } from './context'
 import { formatEvent } from './format'
 import { getInputs, Inputs, statusOpts } from './input'
 import { logDebug, logError, logInfo } from './utils'
@@ -19,31 +18,40 @@ async function run() {
         endGroup()
 
         logInfo(`Triggering ${inputs.webhooks.length} webhook${inputs.webhooks.length > 1 ? 's' : ''}...`)
-        await Promise.all(inputs.webhooks.map(w => wrapWebhook(w.trim(), payload)))
+        const results = await Promise.allSettled(
+            inputs.webhooks.map(w => wrapWebhook(w.trim(), payload))
+        )
+        const failures = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+        if (failures.length > 0) {
+            for (const failure of failures) {
+                const message = failure.reason instanceof Error ? failure.reason.message : String(failure.reason)
+                logError(message)
+            }
+            return
+        }
 
         // set output
         setOutput('payload', payloadStr)
-    } catch (e: any) {
-        logError(`Unexpected failure: ${e} (${e.message})`)
+    } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : String(e)
+        logError(`Unexpected failure: ${message}`)
     }
 }
 
-function wrapWebhook(webhook: string, payload: Object): Promise<void> {
-    return async function () {
-        try {
-            await axios.post(webhook, payload)
-        } catch (e: any) {
-            if (e.response) {
-                logError(`Webhook response: ${e.response.status}: ${JSON.stringify(e.response.data)}`)
-            } else {
-                logError(e)
-            }
-        }
-    }()
+async function wrapWebhook(webhook: string, payload: Object): Promise<void> {
+    const res = await fetch(webhook, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    if (!res.ok) {
+        const body = await res.text()
+        throw new Error(`Webhook response: ${res.status}: ${body}`)
+    }
 }
 
 export function getPayload(inputs: Readonly<Inputs>): Object {
-    const ctx = github.context
+    const ctx = getContext()
     const { owner, repo } = ctx.repo
     const { eventName, ref, workflow, actor, payload, serverUrl, runId } = ctx
     const repoURL = `${serverUrl}/${owner}/${repo}`
@@ -133,4 +141,8 @@ export function getPayload(inputs: Readonly<Inputs>): Object {
     return discord_payload
 }
 
-run()
+// Skip auto-execution under the test runner so importing this module for unit
+// tests does not trigger a real webhook run.
+if (!process.env.VITEST) {
+    run()
+}

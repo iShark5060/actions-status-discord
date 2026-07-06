@@ -1,80 +1,76 @@
-name: "release"
+name: Release
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 24
+
 on:
   release:
-    types:
-      - published
-      - edited
+    types: [published]
 
 jobs:
-  release:
+  build-and-tag:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: write
-      packages: read
       id-token: write
       attestations: write
 
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+      - name: Checkout
+        uses: actions/checkout@v7
 
-      - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
+          version: 11
 
-      - name: build
-        uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
-          imageName: ghcr.io/${{ github.repository }}/devcontainer
-          cacheFrom: ghcr.io/${{ github.repository }}/devcontainer
-          push: never
-          runCmd: |
-            npm ci
-            npm run build
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
 
-      - name: generate artifact attestation for action.yml
-        uses: actions/attest-build-provenance@00014ed6ed5efc5b1ab7f7f34a39eb55d41aa4f8
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build action
+        run: pnpm run build
+
+      - name: Attest action.yml
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: action.yml
 
-      - name: generate artifact attestation for lib/index.js
-        uses: actions/attest-build-provenance@00014ed6ed5efc5b1ab7f7f34a39eb55d41aa4f8
+      - name: Attest lib/index.js
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: lib/index.js
 
-      - name: Build and Tag
-        # temporary use own fork until
-        # uses: JasonEtco/build-and-tag-action@v2
-        uses: sarisia/build-and-tag-action@86c2f7fbe7691ec3529884d45038295c0aa3ce35
+      - name: Create version tag
+        uses: JasonEtco/build-and-tag-action@dd5e4991048c325f6d85b4155e586fc211c644da # v2
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        with:
-          commit_message: |
-            Automatic build
-            Commit ${{ github.sha }}
-            Run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-      - name: Update source tag
+      - name: Push source tag
         shell: bash
         run: |
           TAGNAME=${{ github.ref_name }}-src
-          git tag $TAGNAME ${{ github.sha }}
-          git push origin $TAGNAME
+          git tag "$TAGNAME" ${{ github.sha }}
+          git push origin "$TAGNAME"
 
-      - name: report result
-        uses: sarisia/actions-status-discord@b8381b25576cb341b2af39926ab42c5056cc44ed
-        if: always()
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-
-  e2e-all-os:
-    needs: release
+  e2e:
+    needs: build-and-tag
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     strategy:
-      max-parallel: 2 # to avoid discord webhook's rate limit
+      fail-fast: false
+      max-parallel: 2
       matrix:
         os:
-          # https://docs.github.com/en/actions/reference/runners/github-hosted-runners#standard-github-hosted-runners-for-public-repositories
           - ubuntu-slim
           - ubuntu-latest
           - ubuntu-24.04
@@ -90,43 +86,61 @@ jobs:
           - macos-14
           - macos-15
           - macos-26
-    runs-on: ${{ matrix.os }}
-    permissions:
-      contents: read
+
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+      - name: Checkout tag
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.ref_name }}
+          persist-credentials: false
 
-      - uses: ./
+      - name: Run action
+        uses: ./
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          status: Success
-          content: "hey <@316911818725392384>"
-          title: "e2e - ${{ github.ref_name }} - ${{ matrix.os }}"
+          status: success
+          content: '<@${{ secrets.DISCORD_USERID }}>'
+          title: e2e - ${{ github.ref_name }} - ${{ matrix.os }}
           description: |
             Tag: `${{ github.ref_name }}`
-            Build atrifact SHA: `${{ github.sha }}`
+            Build artifact SHA: `${{ github.sha }}`
           nofail: false
-          nodetail: false
-          image: "https://user-images.githubusercontent.com/33576079/81886735-69e03f80-95d8-11ea-8828-fa10dda8afd1.png"
+          image: https://user-images.githubusercontent.com/33576079/81886735-69e03f80-95d8-11ea-8828-fa10dda8afd1.png
           color: 0xFFFFFF
           username: GitHub Actions
           avatar_url: ${{ secrets.AVATAR_URL }}
+          ack_no_webhook: true
 
-  conclude:
-    runs-on: ubuntu-latest
-    needs: e2e-all-os
+  notify:
+    needs: e2e
     if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       actions: read
-    steps:
-      - uses: sarisia/actions/conclusion@main
-        id: ghapi
 
-      - uses: sarisia/actions-status-discord@b8381b25576cb341b2af39926ab42c5056cc44ed
+    steps:
+      - name: Resolve workflow conclusion
+        uses: actions/github-script@v9
+        id: conclusion
+        with:
+          script: |
+            const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+            })
+            const conclusions = jobs.jobs.map(j => j.conclusion).filter(Boolean)
+            const priority = ['failure', 'timed_out', 'cancelled', 'action_required', 'neutral', 'success', 'skipped', 'stale']
+            const conclusion = priority.find(p => conclusions.includes(p)) ?? (conclusions.length ? conclusions[0] : 'success')
+            core.setOutput('conclusion', conclusion)
+
+      - name: Send Discord notification
+        uses: ./
         if: always()
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          status: ${{ steps.ghapi.outputs.conclusion }}
+          status: ${{ steps.conclusion.outputs.conclusion }}
           title: ${{ github.workflow }} - conclusion
+          content: '<@${{ secrets.DISCORD_USERID }}>'
+          ack_no_webhook: true
