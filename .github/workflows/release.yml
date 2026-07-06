@@ -38,15 +38,18 @@ jobs:
       - name: Build action
         run: pnpm run build
 
+      - name: Verify action bundle
+        run: node --check lib/index.mjs
+
       - name: Attest action.yml
         uses: actions/attest-build-provenance@v4
         with:
           subject-path: action.yml
 
-      - name: Attest lib/index.js
+      - name: Attest lib/index.mjs
         uses: actions/attest-build-provenance@v4
         with:
-          subject-path: lib/index.js
+          subject-path: lib/index.mjs
 
       - name: Create version tag
         uses: JasonEtco/build-and-tag-action@dd5e4991048c325f6d85b4155e586fc211c644da # v2
@@ -132,6 +135,12 @@ jobs:
             const priority = ['failure', 'timed_out', 'cancelled', 'action_required', 'neutral', 'success', 'skipped', 'stale']
             const conclusion = priority.find(p => conclusions.includes(p)) ?? (conclusions.length ? conclusions[0] : 'success')
             core.setOutput('conclusion', conclusion)
+
+      - name: Checkout tag
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref_name }}
+          persist-credentials: false
 
       - name: Send Discord notification
         uses: ./

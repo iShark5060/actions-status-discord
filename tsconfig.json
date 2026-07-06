@@ -3,7 +3,8 @@
     /* Basic Options */
     // "incremental": true,                   /* Enable incremental compilation */
     "target": "ES2022",                       /* Node 24 runtime supports modern JS; also provides lib types (e.g. ErrorOptions) required by dependencies. */
-    "module": "commonjs",                     /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "lib": ["ES2023"],                        /* Standard library types available to the compiler. */
     // "lib": [],                             /* Specify library files to be included in the compilation. */
     // "allowJs": true,                       /* Allow javascript files to be compiled. */

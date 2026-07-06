@@ -2,11 +2,12 @@
   "name": "actions-status-discord",
   "version": "1.0.0",
   "description": "Post Github Actions CI status to Discord",
-  "main": "lib/index.js",
+  "main": "lib/index.mjs",
+  "type": "module",
   "packageManager": "pnpm@11.10.0",
   "scripts": {
     "test": "vitest run",
-    "build": "ncc build -o lib --minify src/main.ts",
+    "build": "ncc build -o lib --minify src/main.ts && node --input-type=module -e \"import fs from 'fs'; fs.renameSync('lib/index.js','lib/index.mjs'); fs.rmSync('lib/package.json',{force:true});\"",
     "deps": "pnpm dlx npm-check-updates --target newest -u"
   },
   "author": "Sarisia",

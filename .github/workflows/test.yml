@@ -44,3 +44,6 @@ jobs:
 
       - name: Build action
         run: pnpm run build
+
+      - name: Verify action bundle
+        run: node --check lib/index.mjs

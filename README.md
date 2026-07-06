@@ -12,7 +12,7 @@ Post GitHub Actions status to Discord as a beautiful embed.
 
 ## Usage
 
-> **Always reference a published version tag** (e.g. `@v1`), which is the default in the examples below. The bundled action code (`lib/index.js`) is only committed to release tags, so referencing an unreleased ref like `@main` will not work.
+> **Always reference a published version tag** (e.g. `@v1`), which is the default in the examples below. The bundled action code (`lib/index.mjs`) is only committed to release tags, so referencing an unreleased ref like `@main` will not work.
 
 ### Minimum
 
