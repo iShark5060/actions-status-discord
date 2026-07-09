@@ -1,8 +1,8 @@
 import { describe, test, expect, vi } from 'vitest';
 
 import { formatEvent } from '../src/format';
+import { getPayload } from '../src/index';
 import { Inputs } from '../src/input';
-import { getPayload } from '../src/main';
 
 // see https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
 vi.mock('../src/context', async () => {

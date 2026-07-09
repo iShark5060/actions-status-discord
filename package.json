@@ -1,11 +1,14 @@
 {
-  "name": "actions-status-discord",
+  "name": "actions-discord-status",
   "version": "1.0.1",
   "private": true,
-  "description": "Post Github Actions CI status to Discord",
+  "description": "Post GitHub Actions CI status to Discord",
   "license": "MIT",
-  "author": "Sarisia",
-  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iShark5060/actions-discord-status.git"
+  },
+  "main": "dist/index.js",
   "scripts": {
     "validate": "node run-quality-checks.mjs",
     "lint": "oxlint .",
@@ -15,7 +18,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "build": "esbuild src/main.ts --bundle --platform=node --format=cjs --target=node24 --outfile=lib/index.js --minify",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=cjs --target=node24 --outfile=dist/index.js --minify",
     "deps": "pnpm dlx npm-check-updates --target newest -u --reject @types/node && pnpm dlx npm-check-updates @types/node --target semver -u",
     "deps:update": "pnpm update -r --latest && pnpm update @types/node"
   },

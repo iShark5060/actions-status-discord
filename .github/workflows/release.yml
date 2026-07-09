@@ -8,7 +8,7 @@ env:
 
 on:
   release:
-    types: [published, released]
+    types: [published]
 
 jobs:
   build-and-tag:
@@ -22,6 +22,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Record source commit
+        id: source
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -39,28 +45,28 @@ jobs:
         run: pnpm run build
 
       - name: Verify action bundle
-        run: node --check lib/index.js
+        run: node --check dist/index.js
 
       - name: Attest action.yml
         uses: actions/attest-build-provenance@v4
         with:
           subject-path: action.yml
 
-      - name: Attest lib/index.js
+      - name: Attest dist/index.js
         uses: actions/attest-build-provenance@v4
         with:
-          subject-path: lib/index.js
+          subject-path: dist/index.js
 
-      - name: Create version tag
-        uses: iShark5060/build-and-tag-action@v1
+      - name: Publish to release tag
+        uses: iShark5060/actions-build-and-tag@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Push source tag
         shell: bash
         run: |
-          TAGNAME=${{ github.ref_name }}-src
-          git tag "$TAGNAME" ${{ github.sha }}
+          TAGNAME="${{ github.event.release.tag_name }}-src"
+          git tag "$TAGNAME" "${{ steps.source.outputs.sha }}"
           git push origin "$TAGNAME"
 
   e2e:
@@ -92,7 +98,7 @@ jobs:
       - name: Checkout tag
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.ref_name }}
+          ref: ${{ github.event.release.tag_name }}
           persist-credentials: false
 
       - name: Run action
@@ -101,9 +107,9 @@ jobs:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           status: success
           content: '<@${{ secrets.DISCORD_USERID }}>'
-          title: e2e - ${{ github.ref_name }} - ${{ matrix.os }}
+          title: e2e - ${{ github.event.release.tag_name }} - ${{ matrix.os }}
           description: |
-            Tag: `${{ github.ref_name }}`
+            Tag: `${{ github.event.release.tag_name }}`
             Build artifact SHA: `${{ github.sha }}`
           nofail: false
           image: https://user-images.githubusercontent.com/33576079/81886735-69e03f80-95d8-11ea-8828-fa10dda8afd1.png
@@ -139,7 +145,7 @@ jobs:
       - name: Checkout tag
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.ref_name }}
+          ref: ${{ github.event.release.tag_name }}
           persist-credentials: false
 
       - name: Send Discord notification
