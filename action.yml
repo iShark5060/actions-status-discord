@@ -69,7 +69,7 @@ outputs:
 
 runs:
   using: 'node24'
-  main: 'lib/index.mjs'
+  main: 'lib/index.js'
 
 branding:
   color: 'blue'

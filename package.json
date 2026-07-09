@@ -5,8 +5,7 @@
   "description": "Post Github Actions CI status to Discord",
   "license": "MIT",
   "author": "Sarisia",
-  "type": "module",
-  "main": "lib/index.mjs",
+  "main": "lib/index.js",
   "scripts": {
     "validate": "node run-quality-checks.mjs",
     "lint": "oxlint .",
@@ -16,7 +15,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "build": "esbuild src/main.ts --bundle --platform=node --format=esm --target=node24 --outfile=lib/index.mjs --minify",
+    "build": "esbuild src/main.ts --bundle --platform=node --format=cjs --target=node24 --outfile=lib/index.js --minify",
     "deps": "pnpm dlx npm-check-updates --target newest -u"
   },
   "dependencies": {

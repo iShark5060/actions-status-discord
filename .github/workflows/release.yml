@@ -39,17 +39,17 @@ jobs:
         run: pnpm run build
 
       - name: Verify action bundle
-        run: node --check lib/index.mjs
+        run: node --check lib/index.js
 
       - name: Attest action.yml
         uses: actions/attest-build-provenance@v4
         with:
           subject-path: action.yml
 
-      - name: Attest lib/index.mjs
+      - name: Attest lib/index.js
         uses: actions/attest-build-provenance@v4
         with:
-          subject-path: lib/index.mjs
+          subject-path: lib/index.js
 
       - name: Create version tag
         uses: iShark5060/build-and-tag-action@v1
