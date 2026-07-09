@@ -1,23 +1,27 @@
-import * as core from '@actions/core'
+import * as core from '@actions/core';
 
-const NOFAIL: boolean = core.getInput('nofail').trim().toLowerCase() === 'true'
+const NOFAIL: boolean = core.getInput('nofail').trim().toLowerCase() === 'true';
 
 export function logError(msg: string) {
-    NOFAIL ? core.error(msg) : core.setFailed(msg)
+  if (NOFAIL) {
+    core.error(msg);
+  } else {
+    core.setFailed(msg);
+  }
 }
 
 export function logDebug(msg: string) {
-    core.debug(msg)
+  core.debug(msg);
 }
 
 export function logInfo(msg: string) {
-    core.info(msg)
+  core.info(msg);
 }
 
 export function logWarning(msg: string) {
-    core.warning(msg)
+  core.warning(msg);
 }
 
 export function stob(s: string): boolean {
-    return s.trim().toLowerCase() === 'true'
+  return s.trim().toLowerCase() === 'true';
 }

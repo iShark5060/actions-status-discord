@@ -33,12 +33,12 @@ Post GitHub Actions status to Discord as a beautiful embed.
   with:
     webhook: ${{ secrets.DISCORD_WEBHOOK }}
     status: ${{ job.status }}
-    content: "Hey <@316911818725392384>"
-    title: "deploy"
-    description: "Build and deploy to GitHub Pages"
+    content: 'Hey <@316911818725392384>'
+    title: 'deploy'
+    description: 'Build and deploy to GitHub Pages'
     image: ${{ secrets.EMBED_IMAGE }}
     color: 0x0000ff
-    url: "https://github.com/iShark5060/actions-status-discord"
+    url: 'https://github.com/iShark5060/actions-status-discord'
     username: GitHub Actions
     avatar_url: ${{ secrets.AVATAR_URL }}
 ```
@@ -53,7 +53,7 @@ Post GitHub Actions status to Discord as a beautiful embed.
   with:
     webhook: ${{ secrets.DISCORD_WEBHOOK }}
     nodetail: true
-    title: "New version of `software` is ready!"
+    title: 'New version of `software` is ready!'
     description: |
       Version `${{ github.event.release.tag_name }}`
       Click [here](${{ github.event.release.html_url }}) to download!
@@ -69,55 +69,52 @@ For `if` parameter, see
 
 ### Environment Variables
 
-| Key | Value | Description |
-| - | - | - |
-| DISCORD_WEBHOOK | Discord webhook endpoind like:<br>`https://discordapp.com/api/webhooks/...` | You can provide webhook via inputs either.<br>**DO NOT APPEND [`/github` SUFFIX](https://discord.com/developers/docs/resources/webhook#execute-githubcompatible-webhook)!**
+| Key             | Value                                                                       | Description                                                                                                                                                                 |
+| --------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DISCORD_WEBHOOK | Discord webhook endpoind like:<br>`https://discordapp.com/api/webhooks/...` | You can provide webhook via inputs either.<br>**DO NOT APPEND [`/github` SUFFIX](https://discord.com/developers/docs/resources/webhook#execute-githubcompatible-webhook)!** |
 
 ### Inputs
 
 #### General customizations
 
-| Key | Required | Value | Default | Description |
-| - | - | - | - | - |
-| webhook | No | String | `env.DISCORD_WEBHOOK` | Discord webhook endpoind like:<br>`https://discordapp.com/api/webhooks/...`<br>This overrides `env.DISCORD_WEBHOOK`.<br>**DO NOT APPEND [`/github` SUFFIX](https://discord.com/developers/docs/resources/webhook#execute-githubcompatible-webhook)!** |
-| status | No | `Success`, `Failure`, `Cancelled`, or `Skipped` | `${{ job.status }}` | Job or workflow conclusion. See [Document for `job` context](https://help.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#job-context) |
-| content | No | String | | Content. Shown as an message outside of the embed. See [Mention to user/role](#mention-to-user/role) |
-| title | No | String | `${{ github.workflow}}` | String included in embed title. |
-| description | No | String | | Description included in message |
-| image | No | String | | Image attached to the message |
-| color | No | Hex string like: `0xFFFFFF` | | Overrides Discord embed color |
-| url | No | String | | URL to jump when the title is clicked |
-| username | No | String | | Overrides Discord webhook username |
-| avatar_url | No | String | | Overrides Discord webhook avatar url |
+| Key         | Required | Value                                           | Default                 | Description                                                                                                                                                                                                                                           |
+| ----------- | -------- | ----------------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| webhook     | No       | String                                          | `env.DISCORD_WEBHOOK`   | Discord webhook endpoind like:<br>`https://discordapp.com/api/webhooks/...`<br>This overrides `env.DISCORD_WEBHOOK`.<br>**DO NOT APPEND [`/github` SUFFIX](https://discord.com/developers/docs/resources/webhook#execute-githubcompatible-webhook)!** |
+| status      | No       | `Success`, `Failure`, `Cancelled`, or `Skipped` | `${{ job.status }}`     | Job or workflow conclusion. See [Document for `job` context](https://help.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#job-context)                                                                               |
+| content     | No       | String                                          |                         | Content. Shown as an message outside of the embed. See [Mention to user/role](#mention-to-user/role)                                                                                                                                                  |
+| title       | No       | String                                          | `${{ github.workflow}}` | String included in embed title.                                                                                                                                                                                                                       |
+| description | No       | String                                          |                         | Description included in message                                                                                                                                                                                                                       |
+| image       | No       | String                                          |                         | Image attached to the message                                                                                                                                                                                                                         |
+| color       | No       | Hex string like: `0xFFFFFF`                     |                         | Overrides Discord embed color                                                                                                                                                                                                                         |
+| url         | No       | String                                          |                         | URL to jump when the title is clicked                                                                                                                                                                                                                 |
+| username    | No       | String                                          |                         | Overrides Discord webhook username                                                                                                                                                                                                                    |
+| avatar_url  | No       | String                                          |                         | Overrides Discord webhook avatar url                                                                                                                                                                                                                  |
 
 #### Advanced usages
 
-| Key | Required | Value | Default | Description |
-| - | - | - | - | - |
-| nofail | No | `true` or `false` | `true` | This action won't make workflow failed by default. If set to `false`, this action will set status failed when failed to notify. |
-| nocontext | No | `true` or `false` | `false` | Set `true` to suppress GitHub context fields (`Repository`, `Ref`, etc). |
-| noprefix | No | `true` or `false` | `false` | Set `true` to avoid appending job status (`Success: `, etc.) to title |
-| nodetail | No | `true` or `false` | `false` | Set `true` will set both `nocontext` and `noprefix` to `true` |
-| notimestamp | No | `true` or `false` | `false` | Set `true` to avoid appending timestamp |
-| ack_no_webhook | No | `true` or `false` | `false` | Set `true` to suppress error which raised when webhook is not set |
-
+| Key            | Required | Value             | Default | Description                                                                                                                     |
+| -------------- | -------- | ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| nofail         | No       | `true` or `false` | `true`  | This action won't make workflow failed by default. If set to `false`, this action will set status failed when failed to notify. |
+| nocontext      | No       | `true` or `false` | `false` | Set `true` to suppress GitHub context fields (`Repository`, `Ref`, etc).                                                        |
+| noprefix       | No       | `true` or `false` | `false` | Set `true` to avoid appending job status (`Success: `, etc.) to title                                                           |
+| nodetail       | No       | `true` or `false` | `false` | Set `true` will set both `nocontext` and `noprefix` to `true`                                                                   |
+| notimestamp    | No       | `true` or `false` | `false` | Set `true` to avoid appending timestamp                                                                                         |
+| ack_no_webhook | No       | `true` or `false` | `false` | Set `true` to suppress error which raised when webhook is not set                                                               |
 
 <details>
 <summary>Show deprecated</summary>
 
-| Key | Required | Value | Default | Description |
-| - | - | - | - | - |
-| job | No | String | | **Deprecated. Will be removed in v2**<br>Job name included in message title. Overrides `title` input. |
+| Key | Required | Value  | Default | Description                                                                                           |
+| --- | -------- | ------ | ------- | ----------------------------------------------------------------------------------------------------- |
+| job | No       | String |         | **Deprecated. Will be removed in v2**<br>Job name included in message title. Overrides `title` input. |
 
 </details>
 
-
 ### Outputs
 
-| Key | Description |
-| - | - |
+| Key     | Description                                                                |
+| ------- | -------------------------------------------------------------------------- |
 | payload | Discord webhook payload. See [Full payload control](#full-payload-control) |
-
 
 ## Tips
 
@@ -130,7 +127,7 @@ Some fields support markdown syntax.
   with:
     webhook: ${{ secrets.DISCORD_WEBHOOK }}
     nodetail: true
-    title: "New version of `software` is ready!"
+    title: 'New version of `software` is ready!'
     description: |
       Version `${{ github.event.release.tag_name }}`
       Click [here](${{ github.event.release.html_url }}) to download!
@@ -149,7 +146,7 @@ you can use `content` input to mention users/roles:
   if: always()
   with:
     webhook: ${{ secrets.DISCORD_WEBHOOK }}
-    content: "Hey <@316911818725392384>"
+    content: 'Hey <@316911818725392384>'
 ```
 
 See the [Discord Developer Docs](https://discord.com/developers/docs/reference#message-formatting) for available formats.
@@ -159,11 +156,13 @@ See the [Discord Developer Docs](https://discord.com/developers/docs/reference#m
 You can set multiple webhooks separated with EOL (line break, `\n`) to Secrets.
 
 For example, set Secrets to:
+
 ```
 https://discordapp.com/api/webhooks/...
 https://media.guilded.gg/webhooks/...
 https://this-is-invalid-webhook-endpoint.invalid/...
 ```
+
 will trigger these 3 webhooks simultaneously.
 
 If some of these webhooks are failed, other deliveries will **NOT** be cancelled.
