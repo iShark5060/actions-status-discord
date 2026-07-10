@@ -44,7 +44,7 @@
 ```
 /
 ├── src/                    # TypeScript source code
-│   ├── main.ts            # Main action entry point
+│   ├── index.ts           # Main action entry point
 │   ├── input.ts           # Input parsing and validation
 │   ├── context.ts         # GitHub context handling
 │   ├── format.ts          # GitHub event formatting
@@ -52,7 +52,7 @@
 │   ├── constants.ts       # Discord API constants
 │   └── utils.ts           # Logging utilities
 ├── lib/                   # Compiled/bundled JavaScript (ES modules)
-├── test/                  # Test suites and payloads
+├── tests/                 # Test suites and payloads
 ├── .github/workflows/     # CI/CD workflows
 ├── action.yml            # GitHub Action metadata
 └── package.json          # Node.js package configuration
@@ -138,7 +138,7 @@ Automatic truncation of content exceeding Discord limits:
 ### Versioning
 
 - **Always reference a published version tag** (e.g., `@v1`)
-- The bundled action code (`lib/index.mjs`) is only committed to release tags
+- The bundled action code (`dist/index.js`) is only committed to release tags
 - Referencing `@main` will not work
 
 ### Webhook URLs

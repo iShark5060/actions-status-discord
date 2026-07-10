@@ -59,7 +59,7 @@ pnpm list --depth=0
 
 Edit TypeScript files in the `src/` directory:
 
-- `src/main.ts`: Main action logic
+- `src/index.ts`: Main action logic
 - `src/input.ts`: Input parsing
 - `src/context.ts`: GitHub context
 - `src/format.ts`: Event formatting
@@ -74,7 +74,7 @@ Edit TypeScript files in the `src/` directory:
 pnpm test
 
 # Run specific test file
-pnpm test test/input.test.ts
+pnpm test tests/input.test.ts
 
 # Watch mode (development)
 pnpm test --watch
@@ -87,13 +87,13 @@ pnpm test --watch
 pnpm run build
 ```
 
-**Build output**: Creates `lib/index.mjs` bundled file
+**Build output**: Creates `dist/index.js` bundled file
 
 ### 4. Verify Build
 
 ```bash
 # Check syntax
-node --check lib/index.mjs
+node --check dist/index.js
 
 # Test locally (requires GitHub context simulation)
 # See "Local Testing" section below
@@ -112,7 +112,7 @@ GitHub Actions provides specific environment variables and files. To test locall
 # test-env.sh
 
 # GitHub context environment variables
-export GITHUB_EVENT_PATH="test/payload/push_branch.json"
+export GITHUB_EVENT_PATH="tests/payload/push_branch.json"
 export GITHUB_REPOSITORY="owner/repo"
 export GITHUB_WORKFLOW="Test Workflow"
 export GITHUB_ACTOR="test-user"
@@ -128,23 +128,23 @@ export INPUT_TITLE="Test Notification"
 export INPUT_DESCRIPTION="This is a test from local development"
 
 # Run the action
-node lib/index.mjs
+node dist/index.js
 ```
 
 #### 2. Manual Environment Setup
 
 ```bash
 # Set required environment variables
-export GITHUB_EVENT_PATH="test/payload/push_branch.json"
+export GITHUB_EVENT_PATH="tests/payload/push_branch.json"
 export GITHUB_REPOSITORY="iShark5060/actions-status-discord"
 
 # Run the action
-node lib/index.mjs
+node dist/index.js
 ```
 
 #### 3. Using Test Payloads
 
-The repository includes sample payloads in `test/payload/`:
+The repository includes sample payloads in `tests/payload/`:
 
 - `push_branch.json`: Push to branch event
 - `push_tag.json`: Push tag event
@@ -198,31 +198,31 @@ npx tsc --noEmit
 #### 2. ncc Bundling
 
 ```bash
-# Bundle with ncc (creates lib/index.js)
-npx ncc build src/main.ts -o lib --minify
+# Bundle with esbuild (creates dist/index.js)
+npx esbuild src/index.ts --bundle --platform=node --format=cjs --target=node24 --outfile=dist/index.js --minify
 ```
 
-#### 3. ES Module Conversion
+#### 3. Output Verification
 
 ```bash
-# Rename to .mjs for ES modules
-mv lib/index.js lib/index.mjs
+# esbuild outputs directly to dist/index.js in CommonJS format
+# No additional conversion steps needed
 
-# Remove ncc-generated package.json
-rm -f lib/package.json
+
+
 ```
 
 ### Build Verification
 
 ```bash
 # Verify the bundle is valid JavaScript
-node --check lib/index.mjs
+node --check dist/index.js
 
 # Check file size
-ls -lh lib/index.mjs
+ls -lh dist/index.js
 
 # Inspect bundle contents
-head -50 lib/index.mjs
+head -50 dist/index.js
 ```
 
 ## Development Tools
@@ -249,7 +249,7 @@ Create `.vscode/launch.json`:
       "request": "launch",
       "name": "Debug Action",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/src/main.ts",
+      "program": "${workspaceFolder}/src/index.ts",
       "preLaunchTask": "tsc: build",
       "outFiles": ["${workspaceFolder}/lib/**/*.js"],
       "env": {
@@ -294,7 +294,7 @@ pnpm licenses list
 
 ### Unit Testing
 
-- **Location**: `test/*.test.ts` files
+- **Location**: `tests/*.test.ts` files
 - **Framework**: Vitest
 - **Coverage**: Each source module has corresponding tests
 
@@ -306,7 +306,7 @@ pnpm licenses list
 
 ### Test Data Management
 
-The `test/payload/` directory contains:
+The `tests/payload/` directory contains:
 
 - Realistic GitHub event payloads
 - Multiple event types (push, PR, release)
@@ -321,7 +321,7 @@ The `test/payload/` directory contains:
 pnpm install --frozen-lockfile
 pnpm test
 pnpm run build
-node --check lib/index.mjs
+node --check dist/index.js
 ```
 
 ### Pre-commit Hooks
@@ -344,15 +344,15 @@ Consider adding Husky for pre-commit checks:
 
 1. Add to `action.yml` with description and default
 2. Add to `src/input.ts` interface and parsing logic
-3. Add to `src/main.ts` payload generation
-4. Update tests in `test/input.test.ts` and `test/main.test.ts`
+3. Add to `src/index.ts` payload generation
+4. Update tests in `tests/input.test.ts` and `tests/main.test.ts`
 5. Update documentation in README.md and OpenWiki
 
 ### Modifying Event Formatting
 
 1. Edit `src/format.ts` formatter functions
-2. Add test cases in `test/format.test.ts`
-3. Test with sample payloads in `test/payload/`
+2. Add test cases in `tests/format.test.ts`
+3. Test with sample payloads in `tests/payload/`
 4. Verify Discord rendering
 
 ### Changing Status Colors
@@ -375,7 +375,7 @@ rm -rf node_modules/.cache
 pnpm install --force
 
 # Build with verbose output
-npx ncc build src/main.ts -o lib --minify --verbose
+npx esbuild src/index.ts --bundle --platform=node --format=cjs --target=node24 --outfile=dist/index.js --minify --verbose
 ```
 
 ### Test Failures
@@ -401,7 +401,7 @@ npx tsc --showConfig
 npx tsc --noEmit
 
 # Check specific file
-npx tsc --noEmit src/main.ts
+npx tsc --noEmit src/index.ts
 ```
 
 ## Next Steps

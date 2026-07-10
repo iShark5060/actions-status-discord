@@ -43,7 +43,7 @@ test/
 **Example**:
 
 ```typescript
-// test/format.test.ts
+// tests/format.test.ts
 describe('formatEvent', () => {
   it('formats push events', () => {
     const payload = { head_commit: { id: 'abc123', url: '...', message: 'test' } };
@@ -65,7 +65,7 @@ describe('formatEvent', () => {
 **Example**:
 
 ```typescript
-// test/main.test.ts
+// tests/main.test.ts
 describe('getPayload', () => {
   it('generates payload with context', () => {
     const inputs = {/* mock inputs */};
@@ -80,7 +80,7 @@ describe('getPayload', () => {
 
 **Purpose**: Test with real GitHub event payloads.
 
-**Test Data**: `test/payload/` directory contains actual GitHub event JSON:
+**Test Data**: `tests/payload/` directory contains actual GitHub event JSON:
 
 - `push_branch.json`: Push to branch
 - `push_tag.json`: Push tag creation
@@ -112,7 +112,7 @@ pnpm test
 pnpm test --watch
 
 # Run specific test file
-pnpm test test/input.test.ts
+pnpm test tests/input.test.ts
 
 # Run tests matching pattern
 pnpm test --testNamePattern="format"
@@ -160,7 +160,7 @@ vi.mock('@actions/core', () => ({
 // Set environment variables for tests
 beforeEach(() => {
   process.env.GITHUB_REPOSITORY = 'owner/repo';
-  process.env.GITHUB_EVENT_PATH = './test/payload/push_branch.json';
+  process.env.GITHUB_EVENT_PATH = './tests/payload/push_branch.json';
 });
 ```
 
@@ -214,7 +214,7 @@ fetch.mockResolvedValue({
 
 ### Sample Payloads
 
-The `test/payload/` directory serves multiple purposes:
+The `tests/payload/` directory serves multiple purposes:
 
 1. **Realistic testing**: Actual GitHub event structures
 2. **Regression prevention**: Capture specific event formats
@@ -316,7 +316,7 @@ Tests run in CI on:
   run: pnpm run build
 
 - name: Verify action bundle
-  run: node --check lib/index.mjs
+  run: node --check dist/index.js
 ```
 
 ### Quality Gates
@@ -403,7 +403,7 @@ describe('payload with newParameter', () => {
 pnpm test --reporter=verbose
 
 # Debug specific test file
-pnpm test test/input.test.ts --debug
+pnpm test tests/input.test.ts --debug
 
 # Run with Node.js debugger
 node --inspect-brk node_modules/.bin/vitest run

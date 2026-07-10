@@ -4,7 +4,7 @@
 
 ```
 src/
-├── main.ts          # Primary action logic and orchestration
+├── index.ts          # Primary action logic and orchestration
 ├── input.ts         # Input parsing and validation
 ├── context.ts       # GitHub context handling
 ├── format.ts        # GitHub event formatting
@@ -15,7 +15,7 @@ src/
 
 ## File Details
 
-### `main.ts` - Primary Action Logic
+### `index.ts` - Primary Action Logic
 
 **Purpose**: Orchestrates the entire action execution flow.
 
@@ -209,8 +209,8 @@ main.ts
 
 ### Test Files Location
 
-- `/test/*.test.ts`: Test suites for each module
-- `/test/payload/`: Sample GitHub event payloads
+- `/tests/*.test.ts`: Test suites for each module
+- `/tests/payload/`: Sample GitHub event payloads
 - `vitest.config.ts`: Test runner configuration
 
 ### Test Coverage

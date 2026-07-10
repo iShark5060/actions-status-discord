@@ -33,7 +33,7 @@ const ctx = getContext();
 ### 3. Payload Generation
 
 ```typescript
-// src/main.ts
+// src/index.ts
 const payload = getPayload(inputs);
 ```
 
@@ -58,7 +58,7 @@ fitEmbed(embed);
 ### 5. Webhook Delivery
 
 ```typescript
-// src/main.ts
+// src/index.ts
 const results = await Promise.allSettled(
   inputs.webhooks.map((w) => wrapWebhook(w.trim(), payload)),
 );
@@ -72,7 +72,7 @@ const results = await Promise.allSettled(
 ### 6. Output Setting
 
 ```typescript
-// src/main.ts
+// src/index.ts
 setOutput('payload', payloadStr);
 ```
 
@@ -81,7 +81,7 @@ setOutput('payload', payloadStr);
 
 ## Key Components
 
-### Main Entry Point (`src/main.ts`)
+### Main Entry Point (`src/index.ts`)
 
 The central orchestrator that:
 

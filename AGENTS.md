@@ -32,3 +32,15 @@ pnpm run build
 1. Create a pre-release from `main`
 2. Verify the Release workflow completes (includes cross-platform e2e)
 3. Promote to a full release when ready
+
+## OpenWiki
+
+This repository has documentation located in the /openwiki directory.
+
+Start here:
+
+- [OpenWiki quickstart](openwiki/quickstart.md)
+
+OpenWiki includes repository overview, architecture notes, workflows, domain concepts, operations, integrations, testing guidance, and source maps.
+
+When working in this repository, read the OpenWiki quickstart first, then follow its links to the relevant architecture, workflow, domain, operation, and testing notes.

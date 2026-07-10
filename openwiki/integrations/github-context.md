@@ -295,7 +295,7 @@ const branchName = ref.replace('refs/heads/', '');
 
 ### Test Payloads
 
-The `test/payload/` directory contains sample GitHub event payloads for testing:
+The `tests/payload/` directory contains sample GitHub event payloads for testing:
 
 1. **push_branch.json**: Push to branch event
 2. **push_tag.json**: Push tag creation event
@@ -305,11 +305,11 @@ The `test/payload/` directory contains sample GitHub event payloads for testing:
 ### Unit Tests
 
 ```typescript
-// test/context.test.ts (example structure)
+// tests/context.test.ts (example structure)
 describe('getContext', () => {
   beforeEach(() => {
     process.env.GITHUB_REPOSITORY = 'owner/repo';
-    process.env.GITHUB_EVENT_PATH = './test/payload/push_branch.json';
+    process.env.GITHUB_EVENT_PATH = './tests/payload/push_branch.json';
   });
 
   it('extracts repository info', () => {

@@ -65,7 +65,7 @@ Manual releases can be created via:
 #### 5. Verify Bundle
 
 ```yaml
-- run: node --check lib/index.mjs
+- run: node --check dist/index.js
 ```
 
 #### 6. Attest Build Provenance
@@ -76,7 +76,7 @@ Manual releases can be created via:
     subject-path: action.yml
 - uses: actions/attest-build-provenance@v4
   with:
-    subject-path: lib/index.mjs
+    subject-path: dist/index.js
 ```
 
 ## Versioning Strategy
@@ -108,13 +108,13 @@ The action follows semantic versioning (SemVer):
 The release includes the built action bundle:
 
 ```
-lib/index.mjs  # Compiled and bundled JavaScript action
+dist/index.js  # Compiled and bundled JavaScript action
 ```
 
 ### What's Included in Release
 
 1. **Source code**: TypeScript files (`src/`)
-2. **Bundled action**: `lib/index.mjs`
+2. **Bundled action**: `dist/index.js`
 3. **Configuration files**: `action.yml`, `package.json`
 4. **Documentation**: `README.md`, `LICENSE`
 5. **Test files**: For verification
@@ -133,7 +133,7 @@ lib/index.mjs  # Compiled and bundled JavaScript action
 
 - [ ] All tests pass (`pnpm test`)
 - [ ] Build succeeds (`pnpm run build`)
-- [ ] Bundle verification passes (`node --check lib/index.mjs`)
+- [ ] Bundle verification passes (`node --check dist/index.js`)
 
 #### 2. Documentation
 
@@ -386,7 +386,7 @@ Keep track of:
 # Simulate release build locally
 pnpm install --frozen-lockfile
 pnpm run build
-node --check lib/index.mjs
+node --check dist/index.js
 
 # Check action.yml references
 cat action.yml | grep "main:"
