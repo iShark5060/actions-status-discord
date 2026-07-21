@@ -1,8 +1,12 @@
 # Discord Status
 
-Post GitHub Actions CI status to Discord as embeds.
-
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![CI](https://github.com/iShark5060/actions-discord-status/actions/workflows/ci.yml/badge.svg)](https://github.com/iShark5060/actions-discord-status/actions/workflows/ci.yml)
+![Node](https://img.shields.io/badge/Node-%3E%3D24-339933?logo=node.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-7.x-3178C6?logo=typescript&logoColor=white)
+[![Cursor](https://img.shields.io/badge/Cursor-IDE-141414?logo=cursor&logoColor=white)](https://cursor.com)
+
+Post GitHub Actions CI status to Discord as embeds.
 
 > **Fork notice:** Maintained fork of [sarisia/actions-status-discord](https://github.com/sarisia/actions-status-discord) by Sarisia (MIT License).
 
@@ -100,6 +104,24 @@ Set a step `id`, read `${{ steps.<id>.outputs.payload }}`, modify the JSON, and 
 **`Error: Webhook response: 400: {"sender":["This field is required"]}`**
 
 Do not append `/github` to your webhook URL.
+
+## Requirements
+
+- Node.js 24+
+- pnpm 11+
+
+## Scripts
+
+| Script              | Description                               |
+| ------------------- | ----------------------------------------- |
+| `pnpm run validate` | Format check, lint, typecheck, and tests. |
+| `pnpm run build`    | Bundle `src/` into `dist/index.js`.       |
+
+## Development
+
+Agent-oriented docs: [openwiki/quickstart.md](openwiki/quickstart.md).
+
+Engineering standards: AppBase `docs/org-standards/` with [personal-repos.md](https://github.com/Dark-Avian-Labs/AppBase/blob/main/docs/org-standards/personal-repos.md) (GitHub-hosted runners).
 
 ## License
 
